@@ -1,0 +1,15 @@
+# CREATE ESSAYS TABLE FOR LOADING DATA INTO
+CREATE TABLE essays (
+id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+_projectid CHAR(32),
+_teacher_acctid CHAR(32),
+title VARCHAR(255),
+short_description VARCHAR(255),
+need_statement TEXT,
+essay TEXT,
+paragraph1 TEXT,
+paragraph2 TEXT,
+paragraph3 TEXT,
+paragraph4 TEXT,
+thankyou_note TEXT,
+impact_letter TEXT);
