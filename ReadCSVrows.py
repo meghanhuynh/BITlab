@@ -11,3 +11,5 @@ with open("sample-essays.csv", "rt") as f:
     totalentries = totalrows - 1
 
     print ("Total Data Entries:", totalentries)
+    
+# would closing the file allow it to display all the data? 
