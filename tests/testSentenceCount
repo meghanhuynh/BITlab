@@ -1,0 +1,62 @@
+#*************************************
+#   TEST CASES
+#*************************************
+
+essay = ["mrs","a","is not here today", "A turtle ate my letter Q","A","A","Milne is here"]                         
+essay1 = ["Brought to you by the letter R", "The letter A"]     
+essay2 = ["Dr", "Suess is cool", "Dr", "A", "is cool too"]                          
+
+count = 0
+flag = 1    # check if the sentence is valid
+
+for i in essay:
+
+    phrase = i.strip('"').lower()
+
+    words = phrase.split()
+    
+    # TEST: As Dr / Seuss once said id = 41
+    special = ["mr","mrs","dr","ms","vs"]
+
+    for w in range(len(words)):
+
+        # Don't count mistaken sentences i.e. Dr. 
+        
+        if words[w] in special:
+            flag = 0
+
+        # Don't count abbreviated names ie V.
+            
+        if (words[w] in "bcdefghjklmnopqrstuvwxyz"): 
+                                               
+            flag = 0
+
+            # Need to count if end of sentence ie The letter B.
+            
+            if (words[w-1] != words[w]):
+
+                if (words[w-1] not in special):
+               
+                    flag = 1
+
+        # Don't count A. or I.
+        
+        if (words[w] in "ai"):
+
+            flag = 0
+
+            # Must count end of sentence ie The letter A
+
+            if (words[w-1] != words[w]):
+
+                flag = 1
+           
+                
+    if flag == 1:               
+        count += 1
+        print i,'\n'   # OUTPUT: interpreted sentences
+        
+    flag = 1
+    
+
+print "**** There are ", count, " sentences! ****"
