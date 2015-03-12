@@ -34,23 +34,12 @@ for i in essay:
             # Need to count if end of sentence ie The letter B.
             
             if (words[w-1] != words[w]):
+            
+                flag = 1
 
                 if (words[w-1] not in special):
                
                     flag = 1
-
-        # Don't count A. or I.
-        
-        if (words[w] in "ai"):
-
-            flag = 0
-
-            # Must count end of sentence ie The letter A
-
-            if (words[w-1] != words[w]):
-
-                flag = 1
-           
                 
     if flag == 1:               
         count += 1
