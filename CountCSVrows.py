@@ -42,7 +42,7 @@ with open("donorschoose-org-17feb2012-v1-essays.csv",
     for row in reader:
         if totalrows== 1:
             #print (row)
-            totalrows+=1
+        totalrows+=1
 
     if totalrows == -1:
         totalentries = 0
