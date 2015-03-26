@@ -1,0 +1,188 @@
+load data local infile '/Users/huynhmeg/Desktop/custom-export/donorschoose-org-17feb2012-v1-essays.csv' 
+ into table essays
+fields terminated by ',' optionally enclosed by '"' escaped by '' 
+lines terminated by '\n' 
+ignore 1 lines
+(_projectid,
+_teacher_acctid,
+title,
+short_description,
+need_statement,
+essay,
+paragraph1,
+paragraph2,
+paragraph3,
+paragraph4,
+thankyou_note,
+impact_letter
+)
+;
+
+load data local infile '/Users/huynhmeg/Desktop/custom-export/donorschoose-org-17feb2012-v1-donations-detailed.csv' 
+ into table donations 
+fields terminated by ',' optionally enclosed by '"' escaped by '' 
+lines terminated by '\r' 
+ignore 1 lines
+(_donationid,
+_projectid,
+_donor_acctid,
+_cartid,
+donor_city,
+donor_state,
+donor_zip,
+@ta,
+donation_timestamp,
+donation_to_project,
+donation_optional_support,
+donation_total,
+dollar_amount,
+@dios,
+payment_method,
+@piac,
+@picgc,
+@piwpgc,
+@pwpm,
+@vgp,
+@fh,
+@typm,
+donation_message
+)
+SET is_teacher_acct = (@ta = 'true'),
+donation_included_optional_support = (@dios = 'true'),
+payment_included_acct_credit = (@piac = 'true'),
+payment_included_campaign_gift_card = (@picgc = 'true'),
+payment_included_web_purchased_gift_card = (@piwpgc = 'true'),
+payment_was_promo_matched = (@pwpm = 'true'),
+via_giving_page = (@vgp = 'true'),
+for_honoree = (@fh = 'true'),
+thank_you_packet_mailed = (@typm = 'true')
+;
+
+load data local infile '/Users/huynhmeg/Desktop/custom-export/donorschoose-org-17feb2012-v1-giftcards-detailed.csv' 
+ into table giftcards
+fields terminated by ',' optionally enclosed by '"' escaped by '' 
+lines terminated by '\n' 
+ignore 1 lines
+(_giftcardid,
+gift_code_amount,
+dollar_amount,
+_buyer_acctid,
+buyer_city,
+buyer_state,
+buyer_zip,
+date_purchased,
+_buyer_cartid,
+_recipient_acctid,
+recipient_city,
+recipient_state,
+recipient_zip,
+@r,
+@dr,
+_redeemed_cartid,
+payment_method,
+@piac,
+@picgc,
+@piwpgc,
+@pwpm
+)
+SET redeemed = (@r = 'true'),
+payment_included_acct_credit = (@piac = 'true'),
+payment_included_campaign_gift_card = (@picgc = 'true'),
+payment_included_web_purchased_gift_card = (@piwpgc = 'true'),
+payment_was_promo_matched = (@pwpm = 'true'),
+date_redeemed = nullif(@dr, '')
+;
+
+load data local infile '/Users/huynhmeg/Desktop/custom-export/donorschoose-org-17feb2012-v1-projects.csv' 
+ into table projects
+fields terminated by ',' optionally enclosed by '"' escaped by '' 
+lines terminated by '\n' 
+ignore 1 lines
+(_projectid,
+_teacher_acctid,
+_schoolid,
+school_ncesid,
+school_latitude,
+school_longitude,
+school_city,
+school_state,
+school_zip,
+school_metro,
+school_district,
+school_county,
+@sc,
+@sm,
+@syr,
+@sn,
+@sk,
+@scrp,
+teacher_prefix,
+@ttfa,
+@tntf,
+primary_focus_subject,
+primary_focus_area,
+secondary_focus_subject,
+secondary_focus_area,
+resource_usage,
+resource_type,
+poverty_level,
+grade_level,
+@vsc,
+@st,
+@ppc,
+@flm,
+total_price_excluding_optional_support,
+total_price_including_optional_support,
+@sr,
+@ubfs,
+@td,
+@nd,
+@edyim,
+@eahm,
+funding_status,
+@dp,
+@dc,
+@dtypm,
+@de
+)
+SET school_charter = (@sc = 'true'),
+school_magnet = (@sm = 'true'),
+school_year_round = (@syr = 'true'),
+school_nlns = (@sn = 'true'),
+school_kipp = (@sk = 'true'),
+school_charter_ready_promise = (@scrp = 'true'),
+teacher_teach_for_america = (@ttfa = 'true'),
+teacher_ny_teaching_fellow = (@tntf = 'true'),
+used_by_future_students = (@ubfs = 'true'),
+eligible_double_your_impact_match = (@edyim = 'true'),
+eligible_almost_home_match = (@eahm = 'true'),
+date_completed = nullif(@dc, ''),
+date_thank_you_packet_mailed = nullif(@dtypm, ''),
+date_expiration = nullif(@de, ''),
+date_posted = nullif(@dp, ''),
+total_donations = nullif(@td, ''),
+num_donors = nullif(@nd, ''),
+students_reached = nullif(@sr, ''),
+vendor_shipping_charges = nullif(@vsc, ''),
+sales_tax = nullif(@st, ''),
+payment_processing_charges = nullif(@ppc, ''),
+fulfillment_labor_materials = nullif(@flm, '')
+;
+
+load data local infile '/Users/huynhmeg/Desktop/custom-export/donorschoose-org-17feb2012-v1-resources.csv' 
+ into table resources
+fields terminated by ',' optionally enclosed by '"' escaped by '' 
+lines terminated by '\r' 
+ignore 1 lines
+(
+_resourceid,
+_projectid,
+vendorid,
+vendor_name,
+project_resource_type,
+item_name,
+item_number,
+item_unit_price,
+item_quantity
+)
+;
