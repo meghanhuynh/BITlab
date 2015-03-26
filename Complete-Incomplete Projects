@@ -1,0 +1,30 @@
+
+# GET FUNDED/COMPLETED PROJECTS - completed/reallocated
+#     Reallocated can be complete or incomplete
+
+select * from projects where date_completed is not NULL; # 259549 rows
+
+select * from projects,_essays 
+where projects.project_id = _essays._projectid 
+and projects.date_completed is not NULL 
+order by projects.id;
+
+# ****************************************************************
+
+# TOTAL PROJECTS = 393797
+
+select * from projects where funding_status = 'completed'; # 257284
+select * from projects where funding_status = 'reallocated'; # 3735
+select * from projects where funding_status = 'expired'; # 109624
+select * from projects where funding_status = 'live'; # 23154
+
+# GET INCOMPLETE PROJECTS - 
+#    expired, incomplete reallocated, don't count live projects
+
+select * from projects where date_completed is NULL and funding_status != 'live'; # 111094
+
+select * from projects,_essays 
+where projects.project_id = _essays._projectid 
+and projects.date_completed is NULL 
+and funding_status != 'live' 
+order by projects.id;
