@@ -452,33 +452,28 @@ def daily_report(client, user_id, hours = 0)
     #browser_id = r.query("select id, browser_type from browsers where user_id = #{user_id} order by timestamp desc")
 
     r.h3 "Top Websites Visited"
-    stmt = r.query ("SELECT root_domain as '',
-                    COUNT(visits.id) AS ''
-                    from visits, pages where visits.browser_id = 17 and pages.id = visits.page_id
+    stmt = r.query ("SELECT root_domain as 'Website',
+                    COUNT(visits.id) AS 'Number of Visits'
+                    from visits, pages where visits.browser_id in (select id as '' from browsers where user_id = #{user_id} order by timestamp desc) and pages.id = visits.page_id
                     GROUP BY root_domain
                     ORDER BY COUNT(visits.id) DESC limit 5 ")
-    stmt = r.query ("SELECT root_domain as '',
-                    COUNT(visits.id) AS ''
-                    from visits, pages where visits.browser_id = 11 and pages.id = visits.page_id
-                    GROUP BY root_domain
-                    ORDER BY COUNT(visits.id) DESC limit 1 ")
+
 
     r.h3 "What Kinds of Visits Did You Perform?"
     r.div "There are several different ways you can visit webpages. Typing in the URL and clicking on a bookmark
     are two of the safest ways to visit sites like banks."
 
-    stmt = r.query("select
-                   case when visit_type = 'Link' then 'Clicked on a Link'
-                   when visit_type = 'Typed' then 'Typed in a URL'
-                   when visit_type = 'Download' then 'Download'
-                   when visit_type = 'Bookmark' then 'Bookmark Event'
-                   when visit_type = 'Generated' then 'Searched via URL bar'
-                   end '',
-                   Count(visits.id) AS ''
-                   from visits, passwords, pages where visits.browser_id = 17 and
-                   passwords.visit_id = visits.id and pages.id = visits.page_id
-                   GROUP BY visit_type
-                   ORDER BY COUNT(visits.id) DESC limit 5")
+    stmt = r.query ("SELECT
+                    case when visit_type = 'Generated' then 'Searched via URL bar'
+                    when visit_type = 'Bookmark' then 'Bookmark Event'
+                    when visit_type = 'Download' then 'Download'
+                    when visit_type = 'Typed' then 'Typed in URL'
+                    when visit_type = 'Link' then 'Clicked on a Link'
+                    end 'Visit Type',
+                    COUNT(visits.id) AS 'Number of Visits'
+                    from visits, pages where visits.browser_id in (select id as '' from browsers where user_id = #{user_id} order by timestamp desc7) and pages.id = visits.page_id and visits.visit_type in ('Link', 'Typed', 'Download','Bookmark','Generated')
+                    GROUP BY visit_type
+                    ORDER BY COUNT(visits.id) DESC ")
 
 
     r.h3  "Passwords"
@@ -489,17 +484,12 @@ def daily_report(client, user_id, hours = 0)
     or for a video game."
 
     #res = r.query("select id, browser_type from browsers where user_id = #{user_id} order by timestamp desc")
-    stmt = r.query ("SELECT root_domain as '',
-                    COUNT(visits.id) AS ``
-                    FROM visits, passwords, pages where visits.browser_id = 17 and passwords.visit_id = visits.id and pages.id = visits.page_id
+    stmt = r.query ("SELECT root_domain as 'Website',
+                    COUNT(visits.id) AS `Number of Entry Events`,
+                    COUNT(distinct(hash)) AS `Number of Passwords Tried`
+                    FROM visits, passwords, pages where visits.browser_id in (select id as '' from browsers where user_id = #{user_id} order by timestamp desc) and passwords.visit_id = visits.id and pages.id = visits.page_id
                     GROUP BY root_domain
                     ORDER BY COUNT(visits.id) DESC limit 15")
-    stmt = r.query ("SELECT root_domain as '',
-                    COUNT(visits.id) AS ``
-                    FROM visits, passwords, pages where visits.browser_id = 11 and passwords.visit_id = visits.id and pages.id = visits.page_id
-                    GROUP BY root_domain
-                    ORDER BY COUNT(visits.id) DESC limit 10")
-
 
     #
     #     # Check for browsers not associated with users
