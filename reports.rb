@@ -18,7 +18,7 @@ def daily_report(client, user_id, hours = 0)
 
     d = Time.now.strftime("%B %-d, %Y")
     r.center "Report created: #{d}", :style=> "font: bold 30px arial,serif ";
-    #:style=> "color:#909090 ";
+  
 
     participation_start = r.q("SELECT DATE(MIN(`date.started`)) FROM pre_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
     participation_end = r.q("SELECT DATE(MAX(`date.ended`)) FROM post_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
