@@ -18,13 +18,25 @@ def daily_report(client, user_id, hours = 0)
 
     d = Time.now.strftime("%B %-d, %Y")
     r.center "Report created: #{d}", :style=> "font: bold 30px arial,serif ";
-  
+    #:style=> "color:#909090 ";
 
-    participation_start = r.q("SELECT DATE(MIN(`date.started`)) FROM pre_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
-    participation_end = r.q("SELECT DATE(MAX(`date.ended`)) FROM post_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
+    begin
+      participation_start = r.q("SELECT DATE(MIN(`date.started`)) FROM pre_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
+      participation_end = r.q("SELECT DATE(MAX(`date.ended`)) FROM post_survey WHERE user_id = #{user_id}").strftime("%B %-d, %Y")
 
-    r.h3 {r.center "Participated from: #{participation_start} to: #{participation_end}", :style=> "font: bold 20px arial,serif ";}
+      if(participation_start.nil? or participation_end.nil?)
+        raise "user does not have start and end survey so put default response of Spring 2015"
+      end
 
+      r.h3 {r.center "Participated from: #{participation_start} to: #{participation_end}", :style=> "font: bold 20px arial,serif ";}
+
+    rescue
+      r.h3 {r.center "Participated Spring 2015", :style=> "font: bold 20px arial,serif ";}
+    end
+
+
+    #these users had to use fieldstudyproduction ot get the dates of participation but for windows portion have to use dr3.
+    #after windows portion they will switch back to browser
     if(r.get_edge_type() == "windows_in_dr3")
       r.change_db_dr3()
     end
@@ -54,10 +66,10 @@ def daily_report(client, user_id, hours = 0)
        end
 
        r.br
-       if (not r.get_edge_type() == "both_no_usage_fig")
+       if (not r.get_skip_usage_fig()) #boolean value that tells us if we should skip the usage figure
          usage_fig_loc = r.get_usage_figure() #this block of code adds the usage figure to the report
          img_dim = [400, 350]
-         fig_caption = "Graph of user usage vs average usage of all users.      "
+         fig_caption = "Graph of user's computer time running vs. average usage of all users' computer time running"
          r.img(file_loc = usage_fig_loc, img_size = img_dim, img_caption = fig_caption)
        else
          puts "skipping usage figure for user_id: #{user_id}"
@@ -149,11 +161,15 @@ def daily_report(client, user_id, hours = 0)
 
         r.br
 
+      begin
+        windows_updates = r.get_updates()
+        fig_caption = "Number of windows updates downloaded on each date"
+        img_dim = [450, 350]
+        r.img(file_loc = windows_updates, img_size = img_dim, img_caption = fig_caption)
+      rescue
+        puts "skipping updates figure for this user because they do not have enough snapshots where updates took place"
+      end
 
-      windows_updates = r.get_updates()
-      fig_caption = "Number of windows updates downloaded on each date"
-      img_dim = [450, 350]
-      r.img(file_loc = windows_updates, img_size = img_dim, img_caption = fig_caption)
 
 
       r.div "Software Updates", :style=> "font: bold 25px arial,serif ";
@@ -339,7 +355,8 @@ def daily_report(client, user_id, hours = 0)
       you used the network. The security of the wireless network indicates how challenging it would be for a
       hacker to listen to what you are doing on the internet.", :style=> "font: 18px arial,serif ";
       r.br
-      res = r.div {r.query("select essid as Name,
+
+      wn =r.query("select essid as Name,
       max(if(message like \"%Automatic connection with a profile%\",
       'Automatic','')) as Connection,
       case when max(encryption) = 'AES' then 'High'
@@ -350,7 +367,15 @@ def daily_report(client, user_id, hours = 0)
       from win_wifi_log where user_id=#{user_id} and essid not like ''
       group by essid
       order by count(*) desc,
-      essid limit 10")}
+      essid limit 10")
+
+      if (wn.count==0)
+        r.div "You have not connected to any wireless access points recently."
+      end
+
+
+
+
 
       r.br
     else
@@ -369,7 +394,6 @@ def daily_report(client, user_id, hours = 0)
     end
 
     ################################START OF BROWSER SECTION############################################################
-
     if(not r.get_edge_type() == "windows_only")
       r.div "Internet Usage", :style=> "font: bold 25px arial,serif ";
       r.br
@@ -507,7 +531,7 @@ def daily_report(client, user_id, hours = 0)
 
       r.div "Top Websites Visited", :style=> "font: bold 25px arial,serif ";
       r.br
-      stmt = r.div {r.query ("SELECT root_domain as 'Website',
+      stmt = r.div {r.query ("SELECT case when isnull(root_domain) then 'N/A' else root_domain end 'Website',
                       COUNT(visits.id) AS 'Number of Visits'
                       from visits, pages where visits.browser_id in (select id as '' from browsers where user_id = #{user_id} order by timestamp desc) and pages.id = visits.page_id
                       GROUP BY root_domain
