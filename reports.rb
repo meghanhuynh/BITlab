@@ -82,11 +82,13 @@ def daily_report(client, user_id, hours = 0)
        installing software, Windows can show you a warning and ask if this piece of software should be allowed
        to make changes. This dialog is called a User Account Control (UAC) dialog. By default Windows
        displays the UAC dialog by turning the screen black and showing a dialog window asking for your
-       approval. It is possible for either you or software acting on your behalf to turn off these warnings.
-       You can nd these settings by going to the Control Panel, selecting the System and Security
+       approval. It is possible for either you or software acting on your behalf to turn off these warnings.", :style=> "font: 18px arial,serif ";
+       r.br
+       r.div "You can find these settings by going to the Control Panel, selecting the System and Security
        category, and then clicking on Change User Account Control settings Action Center, or
-       search for Change User Account Control settings in the search bar.
-       It is recommended that you keep these warnings on. When they are off, any piece of software can
+       search for Change User Account Control settings in the search bar.", :style=> "font: 18px arial,serif ";
+       r.br
+       r.div "It is recommended that you keep these warnings on. When they are off, any piece of software can
        make changes to important settings on your computer without your knowledge.", :style=> "font: 18px arial,serif ";
        r.br
        warnings = r.q("select if(consent_prompt_behavior_admin=
@@ -113,9 +115,10 @@ def daily_report(client, user_id, hours = 0)
         updates to x the issues. The recommended and default setting on Windows is to automatically check
         for recommended and security updates and then install them. Microsoft also releases optional
         updates, and these are not installed unless you change your settings or manually install them.
-        You can nd these settings by going to the Control Panel, selecting the System and Security category,
+        You can find these settings by going to the Control Panel, selecting the System and Security category,
         and clicking on Turn automatic updating on or off under Windows Update, or by searching Turn
         automatic updating on or off in the search bar.", :style=> "font: 18px arial,serif ";
+
 
         res = r.q("select update_notification_level,
                              update_schedule_install_day,
@@ -129,35 +132,30 @@ def daily_report(client, user_id, hours = 0)
         #TODO check for days
             if(res == "NotConfigured" or res == "Disabled")
               r.div "You DO NOT have the recommended update settings.", :style=> "font: 20px arial,serif ";
-
-
+              r.br
               r.div  "Your computer:", :style=> "font: 20px arial,serif ";
               r.div  "Auto checks for updates - No", :style=> "font: 20px arial,serif ";
-            else
+            elsif ( res =="ScheduledInstallation")
               r.div  "You HAVE the recommended update settings.", :style=> "font: 20px arial,serif ";
-
+              r.br
               r.div  "Your computer: ", :style=> "font: 20px arial,serif ";
-              r.div  "Auto-Checks for updates - Every day", :style=> "font: 20px arial,serif ";
-              what_day = "on #{res[1]}"
-              if(res[1] == "EveryDay")
-                what_day = "Every day"
-              end
-
-
-            if(res[0] == "NotifyBeforeDownload")
-              r.puts "Auto checks for updates & Yes - #{what_day} \\\\"
-              r.puts "Auto downloads updates & No \\\\"
-              r.puts "Auto installs updates & No \\\\"
-            elsif(res[0] == "NotifyBeforeInstallation")
-              r.puts "Auto checks for updates & Yes - #{what_day} \\\\"
-              r.puts "Auto downloads updates & Yes \\\\"
-              r.puts "Auto installs updates & No \\\\"
-            elsif(res[0] == "ScheduledInstallation")
-              r.puts "Auto checks for updates & Yes - #{what_day} \\\\"
-              r.puts "Auto downloads updates & Yes \\\\"
-              r.puts "Auto installs updates & Yes \\\\"
+              r.div  "Auto checks for updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div  "Auto downloads updates - Yes ", :style=> "font: 20px arial,serif ";
+              r.div  "Auto installs updates - Yes ", :style=> "font: 20px arial,serif ";
+            elsif(res == "NotifyBeforeDownload")
+              r.div "Auto checks for updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div "Auto downloads updates - No", :style=> "font: 20px arial,serif ";
+              r.div "Auto installs updates - No ", :style=> "font: 20px arial,serif ";
+            elsif(res == "NotifyBeforeInstallation")
+              r.div "Auto checks for updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div "Auto downloads updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div "Auto installs updates - No", :style=> "font: 20px arial,serif ";
+            elsif(res == "ScheduledInstallation")
+              r.div "Auto checks for updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div "Auto downloads updates - Yes", :style=> "font: 20px arial,serif ";
+              r.div "Auto installs updates - Yes", :style=> "font: 20px arial,serif ";
             end
-          end
+
 
         r.br
 
@@ -356,7 +354,8 @@ def daily_report(client, user_id, hours = 0)
       hacker to listen to what you are doing on the internet.", :style=> "font: 18px arial,serif ";
       r.br
 
-      wn =r.query("select essid as Name,
+      # TODO: need to fix
+      wn = r.query "select essid as Name, connection_mode,
       max(if(message like \"%Automatic connection with a profile%\",
       'Automatic','')) as Connection,
       case when max(encryption) = 'AES' then 'High'
@@ -367,9 +366,13 @@ def daily_report(client, user_id, hours = 0)
       from win_wifi_log where user_id=#{user_id} and essid not like ''
       group by essid
       order by count(*) desc,
-      essid limit 10")
+      essid limit 10"
 
-      if (wn.count==0)
+      wn = wn.to_str
+      a = wn.include?'Automatic'
+
+      # if query does not return anything
+      if (!a)
         r.div "You have not connected to any wireless access points recently."
       end
 
